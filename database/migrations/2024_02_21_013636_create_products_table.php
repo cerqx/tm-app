@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 255);
+            $table->string('name');
             $table->longText('description');
             $table->decimal('price');
             $table->enum('status', ['active', 'inactive'])->default('active');
