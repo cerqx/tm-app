@@ -7,15 +7,14 @@ use App\Http\Requests\EditProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): JsonResource
     {
         return ProductResource::collection(Product::with('category')->get());
     }
@@ -25,70 +24,34 @@ class ProductController extends Controller
      */
     public function store(CreateProductRequest $request): JsonResponse
     {
-            $data = [
-                'category_id'=> $request->category_id,
-                'name'=> $request->name,
-                'description'=> $request->description,
-                'price'=> $request->price,
-                'status'=> $request->status,
-            ];
-            $product = Product::create($data);
+            $product = Product::create($request->all());
             return response()->json(['message' => 'Produto criado com sucesso', 'product' => $product], 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(int $id): JsonResponse
     {
-        if(!is_numeric($id)) {
-            return response()->json(['message'=>'O id deve ser um número'], 400);
-        }
-
         return response()->json(Product::where('id', $id)->first());
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(EditProductRequest $request, $id)
+    public function update(EditProductRequest $request, int $id): JsonResponse
     {
-        if(!is_numeric($id)) {
-            return response()->json(['message'=>'O id deve ser um número'], 400);
-        }
 
         $product = Product::where('id', $id)->first();
-
-        if(!$product) {
-            return response()->json(['message'=>'O produto não foi encontrado'], 400);
-        }
-
-        $data = [];
-
-        foreach($request->all() as $key => $value) {
-            $data[$key] = $value;
-        }
-
-        $product->update($data);
-
-        return response()->json($product, 202);
+        $product->update($request->all());
+        return response()->json($product, 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(int $id)
     {
-        if(!is_numeric($id)) {
-            return response()->json(['message'=>'O id deve ser um número'], 400);
-        }
-
-        $product = Product::where('id', $id)->first();
-
-        if(!$product) {
-            return response()->json(['message'=>'O produto não foi encontrado'], 400);
-        }
-
-        return response()->json($product->delete());
+        return response()->json(Product::where('id', $id)->delete());
     }
 }

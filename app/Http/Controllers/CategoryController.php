@@ -13,7 +13,7 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): JsonResponse
     {
         return response()->json(Category::all());
     }
@@ -23,66 +23,33 @@ class CategoryController extends Controller
      */
     public function store(CreateCategoryRequest $request): JsonResponse
     {
-        $data = [
-          'name' => $request->name,
-          'description' => $request->description,
-        ];
-        $category = Category::create($data);
+        $category = Category::create($request->all());
         return response()->json(['message' => 'Categoria criada com sucesso', 'category' => $category], 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(int $id): JsonResponse
     {
-        if(!is_numeric($id)) {
-            return response()->json(['message'=>'O id deve ser um número'], 400);
-        }
         return response()->json(Category::where('id', $id)->first());
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(EditCategoryRequest $request, $id)
+    public function update(EditCategoryRequest $request, int $id): JsonResponse
     {
-        if(!is_numeric($id)) {
-            return response()->json(['message'=>'O id deve ser um número'], 400);
-        }
-
         $category = Category::where('id', $id)->first();
-
-        if(!$category) {
-            return response()->json(['message'=>'A categoria não foi encontrada'], 400);
-        }
-
-        $data = [];
-
-        foreach($request->all() as $key => $value) {
-            $data[$key] = $value;
-        }
-
-       $category->update($data);
-
-       return response()->json($category, 202);
+        $category->update($request->all());
+        return response()->json($category, 202);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
-        if(!is_numeric($id)) {
-            return response()->json(['message'=>'O id deve ser um número'], 400);
-        }
-
-        $category = Category::where('id', $id)->first();
-
-        if(!$category) {
-            return response()->json(['message'=>'A categoria não foi encontrada'], 400);
-        }
-
-        return response()->json($category->delete());
+        return response()->json(Category::where('id', $id)->delete());
     }
 }
