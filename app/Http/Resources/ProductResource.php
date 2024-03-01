@@ -11,7 +11,7 @@ class ProductResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'category' => new CategoryResource(Category::findOrFail($this->resource->category_id)),
+            'category' => new CategoryResource($this->resource->category),
             'id' => $this->resource->id,
             'name' => $this->resource->name,
             'description' => $this->resource->description,
