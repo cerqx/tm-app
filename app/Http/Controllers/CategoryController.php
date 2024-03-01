@@ -4,52 +4,40 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateCategoryRequest;
 use App\Http\Requests\EditCategoryRequest;
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Http\Response;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(): JsonResponse
+    public function index(): ResourceCollection
     {
-        return response()->json(Category::all());
+         return CategoryResource::collection(Category::paginate(10));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(CreateCategoryRequest $request): JsonResponse
+    public function store(CreateCategoryRequest $request): CategoryResource
     {
-        $category = Category::create($request->all());
-        return response()->json(['message' => 'Categoria criada com sucesso', 'category' => $category], 201);
+        return new CategoryResource(Category::create($request->validated()));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(int $id): JsonResponse
+    public function show(int $id): CategoryResource
     {
-        return response()->json(Category::where('id', $id)->first());
+        return new CategoryResource(Category::findOrFail($id));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(EditCategoryRequest $request, int $id): JsonResponse
+    public function update(EditCategoryRequest $request, int $id): CategoryResource
     {
-        $category = Category::where('id', $id)->first();
+        $category = Category::findOrFail($id);
         $category->update($request->all());
-        return response()->json($category, 202);
+        return new CategoryResource($category);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(int $id): JsonResponse
+    public function destroy(int $id): Response
     {
-        return response()->json(Category::where('id', $id)->delete());
+        $category = Category::findOrFail($id);
+        $category->delete();
+
+        return response()->noContent();
     }
 }

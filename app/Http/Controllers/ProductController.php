@@ -6,52 +6,39 @@ use App\Http\Requests\CreateProductRequest;
 use App\Http\Requests\EditProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Http\Response;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(): JsonResource
+    public function index(): ResourceCollection
     {
-        return ProductResource::collection(Product::with('category')->get());
+        return ProductResource::collection(Product::with('category')->paginate(10));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(CreateProductRequest $request): JsonResponse
+    public function store(CreateProductRequest $request): ProductResource
     {
-            $product = Product::create($request->all());
-            return response()->json(['message' => 'Produto criado com sucesso', 'product' => $product], 201);
+        return new ProductResource(Product::create($request->validated()));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(int $id): JsonResponse
+    public function show(int $id): JsonResource
     {
-        return response()->json(Product::where('id', $id)->first());
+        return new ProductResource(Product::findOrFail($id));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(EditProductRequest $request, int $id): JsonResponse
+    public function update(EditProductRequest $request, int $id): ProductResource
     {
-
-        $product = Product::where('id', $id)->first();
+        $product = Product::findOrFail($id);
         $product->update($request->all());
-        return response()->json($product, 200);
+        return new ProductResource($product);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(int $id)
+    public function destroy(int $id): Response
     {
-        return response()->json(Product::where('id', $id)->delete());
+        $product = Product::findOrFail($id);
+        $product->delete();
+
+        return response()->noContent();
     }
 }

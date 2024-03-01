@@ -13,6 +13,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/errors', function () {
-    return view('errors');
-})->name('errors');
+Route::get('/', function () {
+    return view('welcome');
+});
