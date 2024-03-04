@@ -18,7 +18,7 @@ class ProductFactory extends Factory
             'category_id' => $category->random()->id,
             'name' => fake()->word(),
             'description' => fake()->sentence(),
-            'price' => fake()->randomFloat(2, 1),
+            'price' => fake()->randomFloat(2, 1, 100),
             'status' => fake()->randomElement([StatusEnum::Active, StatusEnum::Inactive])
         ];
     }
